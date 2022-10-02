@@ -9,32 +9,39 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /**
  *
  * @author jpgonzalez
  */
-public class Board extends JPanel {
+public class Board extends JPanel{
     
-    private int tortoiseX = 368;  // mid frame cordenates
-    private int tortoiseY = 268;
-    private boolean pen = true;
-    private BufferedImage image; //background image
-    private Color backgorundColor = Color.LIGHT_GRAY; //Frame's background color
-    private JLabel pencilButton;
-    private Toolkit tools;
-    Graphics g;
-    private ArrayList<String> pencilImages;
-    private ArrayList<String> tortoiseImages;
+        private int tortoiseX = 368;  // mid frame cordenates
+        private int tortoiseY = 268;
+        private boolean pen = true;
+        private BufferedImage image; //background image
+        private Color backgorundColor = Color.LIGHT_GRAY; //Frame's background color
+        private JLabel pencilButton;
+        private Toolkit tools;
+        Graphics g;
+        private ArrayList<String> pencilImages;
+        private ArrayList<String> tortoiseImages;
+        private JTextField entradaC;
+        private JButton botonC;
     
     private enum Direction {
         up, down, left, right
     }
     private Direction direction = Direction.up;
+    
     
     //Display the board
     public Board() {
@@ -50,7 +57,100 @@ public class Board extends JPanel {
         setBackgorundColor(backgorundColor);
         //Adds pencil button to the frame
         this.pencilButton = new JLabel();
+        //TextField
+        JTextField entrada = new JTextField();
+        entrada.setPreferredSize(new Dimension(100,30));
+        this.add(entrada);
+        this.entradaC = entrada;
+        //Button
+        JButton boton = new JButton("aceptar");
+        this.add(boton);
+        this.botonC = boton;
+        
     }
+    
+    public void Action(){
+        String entrada = entradaC.getText();
+        
+        switch (entrada) {
+            case "ad":
+                ad();
+                break;
+            case "de":
+                de();
+                break;
+            case "iz":
+                iz();
+                break;
+            case "cl":
+                erase();
+                break;
+            case "lv":
+                pencilOut();
+                break;
+            case "po":
+                pencilIn();
+                break;                
+        }
+    }
+    
+    public void ad(){
+        if(direction == Direction.right){
+            goLeft();
+            direction = Direction.up;
+            //LINEA DE CODIGO CAMBIO DE IMAGEN
+        }else if(direction == Direction.left){
+            goRight();
+            direction = Direction.up;
+            //LINEA DE CODIGO CAMBIO DE IMAGEN
+        }else if(direction == Direction.up){
+            JOptionPane.showMessageDialog(this, "YA ESTÁS HACIA ADELANTE");
+        }else{
+            JOptionPane.showMessageDialog(this, "NO PUEDES GIRAR 180°");
+        }
+    }
+    
+    public void de(){
+        if(direction == Direction.up){
+            goRight();
+            direction = Direction.right;
+            //LINEA DE CODIGO CAMBIO DE IMAGEN
+        }else if(direction == Direction.right){
+            goRight();
+            direction = Direction.down;
+            //LINEA DE CODIGO CAMBIO DE IMAGEN
+        }else if(direction == Direction.down){
+            goRight();
+            direction = Direction.left;
+            //LINEA DE CODIGO CAMBIO DE IMAGEN
+        }else{
+            goRight();
+            direction = Direction.up;
+            //LINEA DE CODIGO CAMBIO DE IMAGEN
+        }
+    }
+    
+    public void iz(){
+        if(direction == Direction.up){
+            goLeft();
+            direction = Direction.left;
+            //LINEA DE CODIGO CAMBIO DE IMAGEN
+        }else if(direction == Direction.right){
+            goLeft();
+            direction = Direction.up;
+            //LINEA DE CODIGO CAMBIO DE IMAGEN
+        }else if(direction == Direction.down){
+            goLeft();
+            direction = Direction.right;
+            //LINEA DE CODIGO CAMBIO DE IMAGEN
+        }else{
+            goLeft();
+            direction = Direction.down;
+            //LINEA DE CODIGO CAMBIO DE IMAGEN
+        }
+    }
+    
+    
     
     /**
      * Deactivates the tortoise's pencil
