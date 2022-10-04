@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.Timer;
-import java.applet.AudioClip;
 import javax.swing.JOptionPane;
 
 /**
@@ -90,7 +89,7 @@ public class Board extends JPanel implements KeyListener {
     public void consoleResponse() throws InterruptedException {
         String[] temp = getInputField().getText().split(" ");
         if(getInputField().getText().equals("lv")) this.pencilIn();
-        else if(getInputField().getText().equals("p")) this.pencilOut();
+        else if(getInputField().getText().equals("po")) this.pencilOut();
         else if(getInputField().getText().equals("de")) this.getTortoise().goRight();
         else if(getInputField().getText().equals("iz")) this.getTortoise().goLeft();
         else if(getInputField().getText().equals("cl")) this.erase();
@@ -149,28 +148,28 @@ public class Board extends JPanel implements KeyListener {
                 for(int i = 0; i < amount; i++) {
                     if(isPen()) drawLine(tortoiseX, tortoiseY, tortoiseX, tortoiseY - 1);
                     this.setTortoiseY(this.getTortoiseY() - 1);
-                    sleep(1000);
+                    //sleep(1000);
                 }
                 break;
             case 2:
                 for(int i = 0; i < amount; i++) {
                     if(isPen()) drawLine(tortoiseX, tortoiseY, tortoiseX, tortoiseY + 1);
                     this.setTortoiseY(this.getTortoiseY() + 1);
-                    sleep(1000);
+                    //sleep(1000);
                 }
                 break;
             case 3:
                 for(int i = 0; i < amount; i++) {
                     if(isPen()) drawLine(tortoiseX, tortoiseY, tortoiseX - 1, tortoiseY);
                     this.setTortoiseY(this.getTortoiseX() - 1);
-                    sleep(1000);
+                    //sleep(1000);
                 }
                 break;
             case 1:
                 for(int i = 0; i < amount; i++) {
                     if(isPen()) drawLine(tortoiseX, tortoiseY, tortoiseX + 1, tortoiseY);
                     this.setTortoiseY(this.getTortoiseX() + 1);
-                    sleep(1000);
+                    //sleep(1000);
                 }
                 break;
         }
