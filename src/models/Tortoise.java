@@ -30,8 +30,8 @@ public class Tortoise {
      * Adds all the tortoise and pencil images
      */
     public void addImages() {
-        this.getPencilImages().add("src/images/pencilIn");
-        this.getPencilImages().add("src/images/pencilOut");
+        this.getPencilImages().add("src/images/pencilIn.png");
+        this.getPencilImages().add("src/images/pencilOut.png");
         this.getTortoiseImages().add("src/images/tortoise.png");
         this.getTortoiseImages().add("src/images/tortoiseRight.png");
         this.getTortoiseImages().add("src/images/tortoiseDown.png");

@@ -12,19 +12,17 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
-import static java.lang.Thread.sleep;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.Timer;
 import javax.swing.JOptionPane;
 
 /**
  *
  * @author jpgonzalez
  */
-public class Board extends JPanel implements KeyListener {
+public class Board extends JPanel implements KeyListener{
     
         private boolean pen = true;
         private int tortoiseX = 368;  // mid frame cordenates
@@ -36,6 +34,25 @@ public class Board extends JPanel implements KeyListener {
         private JTextField inputField = new JTextField();
         //Music
         private SClip audio = new SClip("src/Music/sound.wav");
+        private Color colorLine = Color.BLACK;
+    
+        /**
+         * Prints the image components from the program
+         * @param g 
+         */
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Image tor = getTools().getImage(this.getTortoise().getTortoiseImages().get(this.getTortoise().getDirection()));
+        Image pencilIm;
+        if(isPen()) pencilIm = getTools().getImage("src/images/pencilIn.png");
+        else {
+            pencilIm = getTools().getImage("src/images/pencilOut.png");
+        }
+        g.drawImage(getImage(), 0, 0, this);
+        g.drawImage(pencilIm, 10, 10, 64, 64, this);
+        g.drawImage(tor, this.getTortoiseX(), this.getTortoiseY(), 64, 64, this);
+    }   
     
     //Display the board
     public Board() {
@@ -47,24 +64,14 @@ public class Board extends JPanel implements KeyListener {
         setPreferredSize(new Dimension(800, 600));
         //Creates the image that'll be used for erase method
         this.image = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
-        setMaximumSize(new Dimension(image.getWidth(), image.getHeight()));
+        setMaximumSize(new Dimension(getImage().getWidth(), getImage().getHeight()));
         setBackgorundColor(this.backgorundColor);
         
         // Sets Input's Size
         inputField.setPreferredSize(new Dimension(100,30));
         inputField.addKeyListener(this);
-        audio.loop();
-    }  
-    
-    /**
-     * Prints the turtle depending on the cordenates and direction
-     * @param g 
-     */
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Image tor = getTools().getImage(this.getTortoise().getTortoiseImages().get(this.getTortoise().getDirection()));
-        g.drawImage(tor, this.getTortoiseX(), this.getTortoiseY(), 64, 64, this);
+        audio.loop(); // Music settted in loop
+        erase();
     }
     
     /**
@@ -88,14 +95,19 @@ public class Board extends JPanel implements KeyListener {
      */
     public void consoleResponse() throws InterruptedException {
         String[] temp = getInputField().getText().split(" ");
-        if(getInputField().getText().equals("lv")) this.pencilIn();
-        else if(getInputField().getText().equals("po")) this.pencilOut();
+        if(getInputField().getText().equals("po")) this.pencilIn();
+        else if(getInputField().getText().equals("lv")) this.pencilOut();
         else if(getInputField().getText().equals("de")) this.getTortoise().goRight();
         else if(getInputField().getText().equals("iz")) this.getTortoise().goLeft();
         else if(getInputField().getText().equals("cl")) this.erase();
-        else if(temp[0].equals("ad")) {
-            this.moveForeward(Integer.parseInt(temp[1]));
-        }else{
+        else if(temp[0].equals("ad")) this.moveForeward(Integer.parseInt(temp[1]));
+        else if(getInputField().getText().equals("m oscuro")) this.darkhMode();
+        else if(getInputField().getText().equals("m claro")) this.ligthMode();
+        else if(getInputField().getText().equals("verde")) this.green();
+        else if(getInputField().getText().equals("rojo")) this.red();
+        else if(getInputField().getText().equals("negro")) this.black();
+        else if(getInputField().getText().equals("blanco")) this.white();
+        else {
             JOptionPane.showMessageDialog(this, "COMANDO INVÁLIDO");
         }
         repaint();
@@ -124,8 +136,49 @@ public class Board extends JPanel implements KeyListener {
         //Takes the current frame 
         Graphics frame = getImage().getGraphics();
         //Erases all the lines in the current frame
-        frame.setColor(getBackgorundColor());
+        frame.setColor(backgorundColor);
         frame.fillRect(0, 0, this.getImage().getWidth(), this.getImage().getHeight());
+    }
+    
+    /**
+     * Puts the pencil color on green 
+     */
+    public void green() {
+        this.setColorLine(Color.GREEN);
+    }
+    
+    /**
+     * Puts the pencil color on green 
+     */
+    public void red() {
+        this.setColorLine(Color.RED);
+    }
+    
+    /**
+     * Puts the pencil color on green 
+     */
+    public void black() {
+        this.setColorLine(Color.BLACK);
+    }
+    
+    /**
+     * Puts the pencil color on green 
+     */
+    public void white() {
+        this.setColorLine(Color.WHITE);
+    }
+    
+    /**
+     *  
+     */
+    public void ligthMode() {
+        this.setBackground(Color.LIGHT_GRAY);
+        this.setColorLine(Color.BLACK);
+    }
+    
+    public void darkhMode() {
+        this.setBackground(Color.DARK_GRAY);
+        this.setColorLine(Color.WHITE);
     }
     
     /**
@@ -135,42 +188,30 @@ public class Board extends JPanel implements KeyListener {
      * @param x2
      * @param y2 
      */
-    public void drawLine(int x1, int y1, int x2, int y2) {
-        Graphics g = getImage().getGraphics();
-        Color color = Color.BLACK;
-        g.setColor(color);
-        g.drawLine(x1, y1, x2, y2);
+    public void drawLine(int x2, int y2) {
+        Graphics g = this.getImage().getGraphics();
+        g.setColor(colorLine);
+        g.drawLine(getTortoiseX()+31, getTortoiseY()+31, x2+31, y2+31);
+        repaint();
     }
     
     public void moveForeward(int amount) throws InterruptedException {
-        switch (tortoise.getDirection()) {
+        switch (getTortoise().getDirection()) {
             case 0:
-                for(int i = 0; i < amount; i++) {
-                    if(isPen()) drawLine(tortoiseX, tortoiseY, tortoiseX, tortoiseY - 1);
-                    this.setTortoiseY(this.getTortoiseY() - 1);
-                    //sleep(1000);
-                }
+                if(isPen()) this.drawLine(getTortoiseX(), getTortoiseY() - amount);
+                this.setTortoiseY(this.getTortoiseY() - amount);
                 break;
             case 2:
-                for(int i = 0; i < amount; i++) {
-                    if(isPen()) drawLine(tortoiseX, tortoiseY, tortoiseX, tortoiseY + 1);
-                    this.setTortoiseY(this.getTortoiseY() + 1);
-                    //sleep(1000);
-                }
+                if(isPen()) this.drawLine(getTortoiseX(), getTortoiseY() + amount);
+                this.setTortoiseY(this.getTortoiseY() + amount);
                 break;
             case 3:
-                for(int i = 0; i < amount; i++) {
-                    if(isPen()) drawLine(tortoiseX, tortoiseY, tortoiseX - 1, tortoiseY);
-                    this.setTortoiseY(this.getTortoiseX() - 1);
-                    //sleep(1000);
-                }
-                break;
-            case 1:
-                for(int i = 0; i < amount; i++) {
-                    if(isPen()) drawLine(tortoiseX, tortoiseY, tortoiseX + 1, tortoiseY);
-                    this.setTortoiseY(this.getTortoiseX() + 1);
-                    //sleep(1000);
-                }
+                if(isPen()) this.drawLine(getTortoiseX() - amount, getTortoiseY());
+                this.setTortoiseX(this.getTortoiseX() - amount);
+            break;
+        case 1:    
+                if(isPen()) this.drawLine(getTortoiseX() + amount, getTortoiseY());
+                this.setTortoiseX(this.getTortoiseX() + amount);
                 break;
         }
     }
@@ -295,5 +336,33 @@ public class Board extends JPanel implements KeyListener {
      */
     public void setTortoiseY(int tortoiseY) {
         this.tortoiseY = tortoiseY;
+    }
+
+    /**
+     * @return the audio
+     */
+    public SClip getAudio() {
+        return audio;
+    }
+
+    /**
+     * @param audio the audio to set
+     */
+    public void setAudio(SClip audio) {
+        this.audio = audio;
+    }
+
+    /**
+     * @return the colorLine
+     */
+    public Color getColorLine() {
+        return colorLine;
+    }
+
+    /**
+     * @param colorLine the colorLine to set
+     */
+    public void setColorLine(Color colorLine) {
+        this.colorLine = colorLine;
     }
 }
