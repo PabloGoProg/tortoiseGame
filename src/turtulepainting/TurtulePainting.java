@@ -5,6 +5,7 @@
 package turtulepainting;
 
 import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 import models.Board;
 
 /**
@@ -18,7 +19,9 @@ public class TurtulePainting {
      */
     public static void main(String[] args) {
         Board myTest = new Board();
-        JFrame display = new JFrame();
+        JFrame display = new JFrame("Turtle Painting Game");
+        
+        display.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         display.getContentPane().add(myTest);
         display.pack();
         display.setVisible(true);

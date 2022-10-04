@@ -4,6 +4,9 @@
 # Log file
 *.log
 
+#NetBeans files
+nbproject
+
 # BlueJ files
 *.ctxt
 

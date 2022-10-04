@@ -9,148 +9,93 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+import static java.lang.Thread.sleep;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.Timer;
 
 /**
  *
  * @author jpgonzalez
  */
-public class Board extends JPanel{
+public class Board extends JPanel implements KeyListener {
     
+        private boolean pen = true;
         private int tortoiseX = 368;  // mid frame cordenates
         private int tortoiseY = 268;
-        private boolean pen = true;
         private BufferedImage image; //background image
+        private Tortoise tortoise;
         private Color backgorundColor = Color.LIGHT_GRAY; //Frame's background color
-        private JLabel pencilButton;
         private Toolkit tools;
-        Graphics g;
-        private ArrayList<String> pencilImages;
-        private ArrayList<String> tortoiseImages;
-        private JTextField entradaC;
-        private JButton botonC;
-    
-    private enum Direction {
-        up, down, left, right
-    }
-    private Direction direction = Direction.up;
-    
+        private JTextField inputField = new JTextField(); 
     
     //Display the board
     public Board() {
         this.tools = Toolkit.getDefaultToolkit();
-        this.pencilImages = new ArrayList<>();
-        this.tortoiseImages = new ArrayList<>();
-        addImages();
+        this.tortoise = new Tortoise();
+        this.add(inputField);
         
         //set a 800px * 1000px board
         setPreferredSize(new Dimension(800, 600));
         //Creates the image that'll be used for erase method
         this.image = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
+        setMaximumSize(new Dimension(image.getWidth(), image.getHeight()));
         setBackgorundColor(backgorundColor);
-        //Adds pencil button to the frame
-        this.pencilButton = new JLabel();
-        //TextField
-        JTextField entrada = new JTextField();
-        entrada.setPreferredSize(new Dimension(100,30));
-        this.add(entrada);
-        this.entradaC = entrada;
-        //Button
-        JButton boton = new JButton("aceptar");
-        this.add(boton);
-        this.botonC = boton;
         
+        // Sets Input's Size
+        inputField.setPreferredSize(new Dimension(100,30));
+        inputField.addKeyListener(this);
+    }  
+    
+    /**
+     * Prints the turtle depending on the cordenates and direction
+     * @param g 
+     */
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Image tor = getTools().getImage(this.getTortoise().getTortoiseImages().get(this.getTortoise().getDirection()));
+        g.drawImage(tor, this.getTortoiseX(), this.getTortoiseY(), 64, 64, this);
     }
     
-    public void Action(){
-        String entrada = entradaC.getText();
-        
-        switch (entrada) {
-            case "ad":
-                ad();
-                break;
-            case "de":
-                de();
-                break;
-            case "iz":
-                iz();
-                break;
-            case "cl":
-                erase();
-                break;
-            case "lv":
-                pencilOut();
-                break;
-            case "po":
-                pencilIn();
-                break;                
+    /**
+     * Detects enter key to erase the text field content and call action method
+     * @param e 
+     */
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+            try {
+                consoleResponse();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Board.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            getInputField().setText("");
         }
     }
     
-    public void ad(){
-        if(direction == Direction.right){
-            goLeft();
-            direction = Direction.up;
-            //LINEA DE CODIGO CAMBIO DE IMAGEN
-        }else if(direction == Direction.left){
-            goRight();
-            direction = Direction.up;
-            //LINEA DE CODIGO CAMBIO DE IMAGEN
-        }else if(direction == Direction.up){
-            JOptionPane.showMessageDialog(this, "YA ESTÁS HACIA ADELANTE");
-        }else{
-            JOptionPane.showMessageDialog(this, "NO PUEDES GIRAR 180°");
+    /**
+     * Selects the programs actions depending on the input
+     */
+    public void consoleResponse() throws InterruptedException {
+        String[] temp = getInputField().getText().split(" ");
+        if(getInputField().getText().equals("lv")) this.pencilIn();
+        else if(getInputField().getText().equals("p")) this.pencilOut();
+        else if(getInputField().getText().equals("de")) this.getTortoise().goRight();
+        else if(getInputField().getText().equals("iz")) this.getTortoise().goLeft();
+        else if(getInputField().getText().equals("cl")) this.erase();
+        else if(temp[0].equals("ad")) {
+            this.moveForeward(Integer.parseInt(temp[1]));
         }
+        repaint();
     }
     
-    public void de(){
-        if(direction == Direction.up){
-            goRight();
-            direction = Direction.right;
-            //LINEA DE CODIGO CAMBIO DE IMAGEN
-        }else if(direction == Direction.right){
-            goRight();
-            direction = Direction.down;
-            //LINEA DE CODIGO CAMBIO DE IMAGEN
-        }else if(direction == Direction.down){
-            goRight();
-            direction = Direction.left;
-            //LINEA DE CODIGO CAMBIO DE IMAGEN
-        }else{
-            goRight();
-            direction = Direction.up;
-            //LINEA DE CODIGO CAMBIO DE IMAGEN
-        }
-    }
-    
-    public void iz(){
-        if(direction == Direction.up){
-            goLeft();
-            direction = Direction.left;
-            //LINEA DE CODIGO CAMBIO DE IMAGEN
-        }else if(direction == Direction.right){
-            goLeft();
-            direction = Direction.up;
-            //LINEA DE CODIGO CAMBIO DE IMAGEN
-        }else if(direction == Direction.down){
-            goLeft();
-            direction = Direction.right;
-            //LINEA DE CODIGO CAMBIO DE IMAGEN
-        }else{
-            goLeft();
-            direction = Direction.down;
-            //LINEA DE CODIGO CAMBIO DE IMAGEN
-        }
-    }
-    
-    
+     
     
     /**
      * Deactivates the tortoise's pencil
@@ -165,55 +110,7 @@ public class Board extends JPanel{
     public void pencilIn() {
         this.setPen(true);
     }
-    
-    /**
-     * Adds pencil and tortoise images
-     */
-    public void addImages() {
-        this.getPencilImages().add("src/images/pencilIn");
-        this.getPencilImages().add("src/images/pencilOut");
-        this.getTortoiseImages().add("src/images/tortoise.png");
-        this.getTortoiseImages().add("src/images/tortoiseLeft.png");
-        this.getTortoiseImages().add("src/images/tortoiseDown.png");
-        this.getTortoiseImages().add("src/images/tortoiseRight.png");
-    }
-    
-    public void goRight() {
-        switch (direction) {
-            case up:
-                this.direction = Direction.right;
-                break;
-            case down:
-                this.direction = Direction.left;
-                break;
-            case left:
-                this.direction = Direction.up;
-                break;
-            case right:
-                this.direction = Direction.down;
-                break;
-        }
-    }
-    
-    public void goLeft() {
-        switch (direction) {
-            case up:
-                this.direction = Direction.left;
-                break;
-            case down:
-                this.direction = Direction.right;
-                break;
-            case left:
-                this.direction = Direction.down;
-                break;
-            case right:
-                this.direction = Direction.up;
-                break;
-        }
-    }
-    
-    
-    
+        
     /**
      * Cleans the board's image
      */
@@ -225,53 +122,51 @@ public class Board extends JPanel{
         frame.fillRect(0, 0, this.getImage().getWidth(), this.getImage().getHeight());
     }
     
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Image tortoise = getTools().getImage("src/images/tortoise.png");
-        g.drawImage(tortoise, this.getTortoiseX(), this.getTortoiseY(), 64, 64, this);
-    }
-    
     /**
-     * Draws a line between certain codenates x and y
+     * Draws a line between certain coordenates x and y
      * @param x1
      * @param y1
      * @param x2
      * @param y2 
      */
     public void drawLine(int x1, int y1, int x2, int y2) {
-        Graphics g = image.getGraphics();
+        Graphics g = getImage().getGraphics();
         Color color = Color.BLACK;
         g.setColor(color);
         g.drawLine(x1, y1, x2, y2);
     }
     
-    /**
-     * @return the tortoiseX
-     */
-    public int getTortoiseX() {
-        return tortoiseX;
-    }
-
-    /**
-     * @param tortoiseX the tortoiseX to set
-     */
-    public void setTortoiseX(int tortoiseX) {
-        this.tortoiseX = tortoiseX;
-    }
-
-    /**
-     * @return the tortoiseY
-     */
-    public int getTortoiseY() {
-        return tortoiseY;
-    }
-
-    /**
-     * @param tortoiseY the tortoiseY to set
-     */
-    public void setTortoiseY(int tortoiseY) {
-        this.tortoiseY = tortoiseY;
+    public void moveForeward(int amount) throws InterruptedException {
+        switch (tortoise.getDirection()) {
+            case 0:
+                for(int i = 0; i < amount; i++) {
+                    if(isPen()) drawLine(tortoiseX, tortoiseY, tortoiseX, tortoiseY - 1);
+                    this.setTortoiseY(this.getTortoiseY() - 1);
+                    sleep(1000);
+                }
+                break;
+            case 2:
+                for(int i = 0; i < amount; i++) {
+                    if(isPen()) drawLine(tortoiseX, tortoiseY, tortoiseX, tortoiseY + 1);
+                    this.setTortoiseY(this.getTortoiseY() + 1);
+                    sleep(1000);
+                }
+                break;
+            case 3:
+                for(int i = 0; i < amount; i++) {
+                    if(isPen()) drawLine(tortoiseX, tortoiseY, tortoiseX - 1, tortoiseY);
+                    this.setTortoiseY(this.getTortoiseX() - 1);
+                    sleep(1000);
+                }
+                break;
+            case 1:
+                for(int i = 0; i < amount; i++) {
+                    if(isPen()) drawLine(tortoiseX, tortoiseY, tortoiseX + 1, tortoiseY);
+                    this.setTortoiseY(this.getTortoiseX() + 1);
+                    sleep(1000);
+                }
+                break;
+        }
     }
 
     /**
@@ -317,48 +212,6 @@ public class Board extends JPanel{
     }
 
     /**
-     * @return the pencilButton
-     */
-    public JLabel getPencilButton() {
-        return pencilButton;
-    }
-
-    /**
-     * @param pencilButton the pencilButton to set
-     */
-    public void setPencilButton(JLabel pencilButton) {
-        this.pencilButton = pencilButton;
-    }
-
-    /**
-     * @return the pencilImages
-     */
-    public ArrayList<String> getPencilImages() {
-        return pencilImages;
-    }
-
-    /**
-     * @param pencilImages the pencilImages to set
-     */
-    public void setPencilImages(ArrayList<String> pencilImages) {
-        this.pencilImages = pencilImages;
-    }
-
-    /**
-     * @return the tortoiseImages
-     */
-    public ArrayList<String> getTortoiseImages() {
-        return tortoiseImages;
-    }
-
-    /**
-     * @param tortoiseImages the tortoiseImages to set
-     */
-    public void setTortoiseImages(ArrayList<String> tortoiseImages) {
-        this.tortoiseImages = tortoiseImages;
-    }
-
-    /**
      * @return the tools
      */
     public Toolkit getTools() {
@@ -370,5 +223,71 @@ public class Board extends JPanel{
      */
     public void setTools(Toolkit tools) {
         this.tools = tools;
+    }
+    
+    @Override
+    public void keyReleased(KeyEvent e) {
+        
+    }
+    
+        @Override
+    public void keyTyped(KeyEvent e) {
+        
+    }
+
+    /**
+     * @return the tortoise
+     */
+    public Tortoise getTortoise() {
+        return tortoise;
+    }
+
+    /**
+     * @param tortoise the tortoise to set
+     */
+    public void setTortoise(Tortoise tortoise) {
+        this.tortoise = tortoise;
+    }
+
+    /**
+     * @return the inputField
+     */
+    public JTextField getInputField() {
+        return inputField;
+    }
+
+    /**
+     * @param inputField the inputField to set
+     */
+    public void setInputField(JTextField inputField) {
+        this.inputField = inputField;
+    }
+
+    /**
+     * @return the tortoiseX
+     */
+    public int getTortoiseX() {
+        return tortoiseX;
+    }
+
+    /**
+     * @param tortoiseX the tortoiseX to set
+     */
+    public void setTortoiseX(int tortoiseX) {
+        this.tortoiseX = tortoiseX;
+    }
+
+    /**
+     * @return the tortoiseY
+     */
+    public int getTortoiseY() {
+        return tortoiseY;
+    }
+
+    /**
+     * @param tortoiseY the tortoiseY to set
+     */
+    public void setTortoiseY(int tortoiseY) {
+        this.tortoiseY = tortoiseY;
     }
 }
