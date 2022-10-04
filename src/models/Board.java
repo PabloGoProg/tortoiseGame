@@ -169,13 +169,16 @@ public class Board extends JPanel implements KeyListener{
     }
     
     /**
-     *  
+     *  Suppose to print the board in ligth gray
      */
     public void ligthMode() {
         this.setBackground(Color.LIGHT_GRAY);
         this.setColorLine(Color.BLACK);
     }
     
+    /**
+     * Supposer to print the board in dark gray
+     */
     public void darkhMode() {
         this.setBackground(Color.DARK_GRAY);
         this.setColorLine(Color.WHITE);
@@ -195,6 +198,11 @@ public class Board extends JPanel implements KeyListener{
         repaint();
     }
     
+    /**
+     * Represents the movement of the tortoise for a forward direction
+     * @param amount
+     * @throws InterruptedException 
+     */
     public void moveForeward(int amount) throws InterruptedException {
         switch (getTortoise().getDirection()) {
             case 0:

@@ -1,0 +1,7 @@
+lv - Levantar el lapiz
+po - poner el lapiz
+cl - borrar el tablero actual 
+(verde, rojo, azul, blanco, negro) - cambia el color del lapiz
+ad (distancia) - mueve la tortuga dependiendo de la dirección
+de = cambia la posición a la derecha
+iz - cambia la posición a la izquierda 
