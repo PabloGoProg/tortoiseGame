@@ -18,6 +18,8 @@ import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.Timer;
+import java.applet.AudioClip;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -32,7 +34,9 @@ public class Board extends JPanel implements KeyListener {
         private Tortoise tortoise;
         private Color backgorundColor = Color.LIGHT_GRAY; //Frame's background color
         private Toolkit tools;
-        private JTextField inputField = new JTextField(); 
+        private JTextField inputField = new JTextField();
+        //Music
+        private SClip audio = new SClip("src/Music/sound.wav");
     
     //Display the board
     public Board() {
@@ -45,11 +49,12 @@ public class Board extends JPanel implements KeyListener {
         //Creates the image that'll be used for erase method
         this.image = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
         setMaximumSize(new Dimension(image.getWidth(), image.getHeight()));
-        setBackgorundColor(backgorundColor);
+        setBackgorundColor(this.backgorundColor);
         
         // Sets Input's Size
         inputField.setPreferredSize(new Dimension(100,30));
         inputField.addKeyListener(this);
+        audio.loop();
     }  
     
     /**
@@ -91,6 +96,8 @@ public class Board extends JPanel implements KeyListener {
         else if(getInputField().getText().equals("cl")) this.erase();
         else if(temp[0].equals("ad")) {
             this.moveForeward(Integer.parseInt(temp[1]));
+        }else{
+            JOptionPane.showMessageDialog(this, "COMANDO INVÁLIDO");
         }
         repaint();
     }
